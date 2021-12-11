@@ -9,6 +9,11 @@ import time
 import matplotlib.pyplot as plt
 from IPython.display import clear_output
 
+from __future__ import print_function
+from googleapiclient.discovery import build
+from oauth2client.service_account import ServiceAccountCredentials
+
+
 AUTOTUNE = -1#tf.data.AUTOTUNE
 
 '''
@@ -17,17 +22,38 @@ This tutorial trains a model to translate from images of horses, to images of ze
 
 As mentioned in the paper, apply random jittering and mirroring to the training dataset. These are some of the image augmentation techniques that avoids overfitting.
 '''
-dataset, metadata = tfds.load('cycle_gan/horse2zebra',
-                              with_info=True, as_supervised=True)
+# dataset, metadata = tfds.load('cycle_gan/horse2zebra',
+#                               with_info=True, as_supervised=True)
 
-train_horses, train_zebras = dataset['trainA'], dataset['trainB']
-test_horses, test_zebras = dataset['testA'], dataset['testB']
+# train_horses, train_zebras = dataset['trainA'], dataset['trainB']
+# test_horses, test_zebras = dataset['testA'], dataset['testB']
 
-BUFFER_SIZE = 1000
-BATCH_SIZE = 1
-IMG_WIDTH = 256
-IMG_HEIGHT = 256
+# linking to google drive through PyDrive
+scope = ['https://drive.google.com/drive/folders/1wmilYDPCeozXGiGOK-hJenxWWuN6zWDP?usp=sharing']
 
+credentials = ServiceAccountCredentials.from_json_keyfile_name('service_account_key.json', scope)
+
+# https://developers.google.com/drive/api/v3/quickstart/python
+service = build('drive', 'v3', credentials=credentials)
+
+# Call the Drive v3 API
+results = service.files().list(
+    fields="*",corpora = 'drive',supportsAllDrives = True, driveId = "YOUR_DRIVE_ID", includeItemsFromAllDrives = True).execute()
+items = results.get('files', [])
+
+if not items:
+    print('No files found.')
+else:
+    print('Files:')
+    for item in items:
+        print(u'{0} ({1})'.format(item['name'], item['id']))
+
+
+    BUFFER_SIZE = 1000
+    BATCH_SIZE = 1
+    IMG_WIDTH = 256
+    IMG_HEIGHT = 256    
+    
 def random_crop(image):
     cropped_image = tf.image.random_crop(
         image, size=[IMG_HEIGHT, IMG_WIDTH, 3])
@@ -209,6 +235,23 @@ def generate_images(model, test_input):
         # getting the pixel values between [0, 1] to plot it.
         plt.imshow(display_list[i] * 0.5 + 0.5)
         plt.axis('off')
+    plt.show()
+
+def save_images(model, test_input):
+    prediction = model(test_input)
+
+    plt.figure(figsize=(12, 12))
+
+    display_list = [test_input[0], prediction[0]]
+    title = ['Input Image', 'Predicted Image']
+
+    for i in range(2):
+        plt.subplot(1, 2, i+1)
+        plt.title(title[i])
+        # getting the pixel values between [0, 1] to plot it.
+        plt.imshow(display_list[i] * 0.5 + 0.5)
+        plt.axis('off')
+    plt.savefig()
     plt.show()
 
 

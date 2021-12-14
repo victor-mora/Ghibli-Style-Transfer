@@ -22,31 +22,31 @@ This tutorial trains a model to translate from images of horses, to images of ze
 
 As mentioned in the paper, apply random jittering and mirroring to the training dataset. These are some of the image augmentation techniques that avoids overfitting.
 '''
-# dataset, metadata = tfds.load('cycle_gan/horse2zebra',
-#                               with_info=True, as_supervised=True)
+dataset, metadata = tfds.load('cycle_gan/horse2zebra',
+                              with_info=True, as_supervised=True)
 
-# train_horses, train_zebras = dataset['trainA'], dataset['trainB']
-# test_horses, test_zebras = dataset['testA'], dataset['testB']
+train_horses, train_zebras = dataset['trainA'], dataset['trainB']
+test_horses, test_zebras = dataset['testA'], dataset['testB']
 
 # linking to google drive through PyDrive
-scope = ['https://drive.google.com/drive/folders/1wmilYDPCeozXGiGOK-hJenxWWuN6zWDP?usp=sharing']
+# scope = ['https://drive.google.com/drive/folders/1wmilYDPCeozXGiGOK-hJenxWWuN6zWDP?usp=sharing']
 
-credentials = ServiceAccountCredentials.from_json_keyfile_name('service_account_key.json', scope)
+# credentials = ServiceAccountCredentials.from_json_keyfile_name('service_account_key.json', scope)
 
-# https://developers.google.com/drive/api/v3/quickstart/python
-service = build('drive', 'v3', credentials=credentials)
+# # https://developers.google.com/drive/api/v3/quickstart/python
+# service = build('drive', 'v3', credentials=credentials)
 
-# Call the Drive v3 API
-results = service.files().list(
-    fields="*",corpora = 'drive',supportsAllDrives = True, driveId = "YOUR_DRIVE_ID", includeItemsFromAllDrives = True).execute()
-items = results.get('files', [])
+# # Call the Drive v3 API
+# results = service.files().list(
+#     fields="*",corpora = 'drive',supportsAllDrives = True, driveId = "YOUR_DRIVE_ID", includeItemsFromAllDrives = True).execute()
+# items = results.get('files', [])
 
-if not items:
-    print('No files found.')
-else:
-    print('Files:')
-    for item in items:
-        print(u'{0} ({1})'.format(item['name'], item['id']))
+# if not items:
+#     print('No files found.')
+# else:
+#     print('Files:')
+#     for item in items:
+#         print(u'{0} ({1})'.format(item['name'], item['id']))
 
 
     BUFFER_SIZE = 1000

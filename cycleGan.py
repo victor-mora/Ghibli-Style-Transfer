@@ -1,4 +1,5 @@
 #pip install git+https://github.com/tensorflow/examples.git
+from __future__ import print_function
 import tensorflow as tf
 
 import tensorflow_datasets as tfds
@@ -8,8 +9,9 @@ import os
 import time
 import matplotlib.pyplot as plt
 from IPython.display import clear_output
+from PIL import Image
+import glob
 
-from __future__ import print_function
 #from googleapiclient.discovery import build
 #from oauth2client.service_account import ServiceAccountCredentials
 
@@ -22,11 +24,39 @@ This tutorial trains a model to translate from images of horses, to images of ze
 
 As mentioned in the paper, apply random jittering and mirroring to the training dataset. These are some of the image augmentation techniques that avoids overfitting.
 '''
-dataset, metadata = tfds.load('data',
-                              with_info=True, as_supervised=True)
+#dataset, metadata = tfds.load('cycle_gan/horse2zebra',
+#                             with_info=True, as_supervised=True)
+def imLoader(path, empList, label):
+    for filename in glob.glob(path + '/*.jpg'):
+        im = Image.open(filename)
+        imArr = tf.keras.preprocessing.image.img_to_array(im)
+        tup = (tf.convert_to_tensor(imArr), label)
+        empList.append(tup)
+        im.close()
 
-train_horses, train_zebras = dataset['trainA'], dataset['trainB']
-test_horses, test_zebras = dataset['testA'], dataset['testB']
+train_horses = []
+
+imLoader('./data/trainA', train_horses, tf.constant(0))
+train_horses = tf.data.Dataset.from_tensor_slices(train_horses)#tf.convert_to_tensor(train_horses)
+
+train_zebras = []
+
+imLoader('./data/trainB', train_zebras, tf.constant(1))
+train_zebras = tf.data.Dataset.from_tensor_slices(train_zebras)#tf.convert_to_tensor(train_zebras)
+
+test_horses = []
+
+imLoader('./data/testA', test_horses, tf.constant(0))
+test_horses = tf.data.Dataset.from_tensor_slices(test_horses)#tf.convert_to_tensor(test_horses)
+
+test_zebras = []
+
+imLoader('./data/testB', test_zebras, tf.constant(1))
+test_zebras = tf.data.Dataset.from_tensor_slices(test_zebras)#tf.convert_to_tensor(test_zebras) 
+
+#train_horses, train_zebras = dataset['trainA'], dataset['trainB']
+#test_horses, test_zebras = dataset['testA'], dataset['testB']
+
 
 # linking to google drive through PyDrive
 # scope = ['https://drive.google.com/drive/folders/1wmilYDPCeozXGiGOK-hJenxWWuN6zWDP?usp=sharing']
@@ -344,4 +374,4 @@ for epoch in range(EPOCHS):
 
 # Run the trained model on the test dataset
 for inp in test_horses.take(5):
-    generate_images(generator_g, inp)
+    save_images(generator_g, inp)

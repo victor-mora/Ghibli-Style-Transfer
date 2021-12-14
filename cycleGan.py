@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 from IPython.display import clear_output
 
 from __future__ import print_function
-from googleapiclient.discovery import build
-from oauth2client.service_account import ServiceAccountCredentials
+#from googleapiclient.discovery import build
+#from oauth2client.service_account import ServiceAccountCredentials
 
 
 AUTOTUNE = -1#tf.data.AUTOTUNE
@@ -22,7 +22,7 @@ This tutorial trains a model to translate from images of horses, to images of ze
 
 As mentioned in the paper, apply random jittering and mirroring to the training dataset. These are some of the image augmentation techniques that avoids overfitting.
 '''
-dataset, metadata = tfds.load('cycle_gan/horse2zebra',
+dataset, metadata = tfds.load('data',
                               with_info=True, as_supervised=True)
 
 train_horses, train_zebras = dataset['trainA'], dataset['trainB']
@@ -49,10 +49,10 @@ test_horses, test_zebras = dataset['testA'], dataset['testB']
 #         print(u'{0} ({1})'.format(item['name'], item['id']))
 
 
-    BUFFER_SIZE = 1000
-    BATCH_SIZE = 1
-    IMG_WIDTH = 256
-    IMG_HEIGHT = 256    
+BUFFER_SIZE = 1000
+BATCH_SIZE = 1
+IMG_WIDTH = 256
+IMG_HEIGHT = 256    
     
 def random_crop(image):
     cropped_image = tf.image.random_crop(
@@ -330,7 +330,8 @@ for epoch in range(EPOCHS):
     clear_output(wait=True)
     # Using a consistent image (sample_horse) so that the progress of the model
     # is clearly visible.
-    generate_images(generator_g, sample_horse)
+    #generate_images(generator_g, sample_horse)
+    save_images(generator_g, sample_horse)
 
     if (epoch + 1) % 5 == 0:
         ckpt_save_path = ckpt_manager.save()

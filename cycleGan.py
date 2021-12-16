@@ -26,6 +26,8 @@ As mentioned in the paper, apply random jittering and mirroring to the training 
 '''
 #dataset, metadata = tfds.load('cycle_gan/horse2zebra',
 #                             with_info=True, as_supervised=True)
+dataset, metadata = tfds.load('my_dataset', with_info=True, as_supervised=True)
+'''
 def imLoader(path, empList, label):
     for filename in glob.glob(path + '/*.jpg'):
         im = Image.open(filename)
@@ -53,9 +55,9 @@ test_zebras = []
 
 imLoader('./data/testB', test_zebras, tf.constant(1))
 test_zebras = tf.data.Dataset.from_tensor_slices(test_zebras)#tf.convert_to_tensor(test_zebras) 
-
-#train_horses, train_zebras = dataset['trainA'], dataset['trainB']
-#test_horses, test_zebras = dataset['testA'], dataset['testB']
+'''
+train_horses, train_zebras = dataset['trainA'], dataset['trainB']
+test_horses, test_zebras = dataset['testA'], dataset['testB']
 
 
 # linking to google drive through PyDrive
